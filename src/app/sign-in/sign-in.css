@@ -1,0 +1,25 @@
+
+
+
+html,
+body {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(7, 66, 7);
+    overflow: hidden;
+    
+}
+
+body {
+    display: flex;
+    justify-content: center;
+}
+
+.bg-color1 {
+    background-color: blanchedalmond;
+    border-radius: 20px;
+    padding: 2rem 1.5rem; /* top/bottom, left/right */
+    width: 500px;
+    margin-top: 6rem;
+}
