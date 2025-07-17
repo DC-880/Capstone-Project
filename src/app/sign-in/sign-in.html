@@ -11,7 +11,7 @@
 
             <div class="input-group mt-3 w-75 mx-auto">
                 <span class="input-group-text">Username</span>
-                <input type="text" name="username" id="username" class="form-control"
+                <input type="text" name="username" id="username" class="form-control" formControlName="username"
                     placeholder="Type Username Here" />
                 @if(signInForm.get('username')?.errors?.['required'] && signInForm.get('username')?.touched) {
                     <span>Please enter a username</span>
@@ -21,7 +21,7 @@
 
             <div class="input-group mb-3 mt-3 w-75 mx-auto">
                 <span class="input-group-text">Password</span>
-                <input type="password" name="password" id="password" class="form-control"
+                <input type="password" name="password" id="password" class="form-control" formControlName="password"
                     placeholder="Type Password Here" />
 
                      @if(signInForm.get('password')?.errors?.['required'] && signInForm.get('password')?.touched) {

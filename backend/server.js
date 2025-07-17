@@ -3,22 +3,14 @@ const express = require('express');
 const connection = require('./connection');
 const app = express();
 const cors = require('cors');
-// const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 
-
-// console.log('env test:', process.env.USER); // Should print 'root'
-// console.log('DB Config:', {
-//   host: process.env.HOST,
-//   user: process.env.USER,
-//   password: process.env.PASSWORD,
-//   database: process.env.DATABASE
-// });
+// console.log('env test:', process.env.HOST);
 
 app.use(express.json());
-// app.use(bodyParser.json());
+
 app.use(cookieParser());
 app.use(cors({
   origin: 'http://localhost:4200',   // Your Angular frontend
@@ -45,6 +37,7 @@ const SECRET_KEY = process.env.SECRET_KEY;
 
 
 app.post('/sign-in', async (req, res) => {
+ 
   let { username, password } = req.body;
 
   if (!username || !password) {
@@ -54,19 +47,19 @@ app.post('/sign-in', async (req, res) => {
 
 
   try {
-    const [data] = await connection.promise().query(`SELECT username, password FROM capstone.admin WHERE username = ? AND password = ?`, [username, password]);
+    const [data] = await connection.promise().query(`SELECT username, password FROM capstone.admin WHERE username = ?`, [username]);
     ;
     if (data.length > 0) {
       const passResult = await bcrypt.compare(password, data[0].password)
       if (passResult) {
         const token = await jwt.sign({ id: data[0].id }, SECRET_KEY, { expiresIn: '1hr' });
         res.cookie('token', token, {
-          httpOnly: true,       // 🔐 Can't be accessed by JavaScript
-          secure: true,         // 🔐 Only sent over HTTPS
-          sameSite: 'strict',   // 🔒 CSRF protection
-          maxAge: 3600000       // 1 hour
+          httpOnly: true,      
+          secure: true,      
+          sameSite: 'strict',  
+          maxAge: 3600000       
         });
-        res.sendStatus(200); // Or return other info if needed
+        res.status(200).json({ message: 'Login Successful'})
       } else {
         res.status(401).json("Login Failed");
       }

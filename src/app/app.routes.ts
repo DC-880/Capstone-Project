@@ -4,11 +4,11 @@ import { Home } from './home/home';
 
 export const routes: Routes = [
     {
-        path: '/sign-in',
+        path: 'sign-in',
         component: SignIn
     },
     {
-        path: '/home',
+        path: 'home',
         component: Home
     },
 
