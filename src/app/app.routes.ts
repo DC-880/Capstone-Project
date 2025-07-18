@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { SignIn } from './sign-in/sign-in';
 import { Home } from './home/home';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
     {
@@ -9,7 +10,12 @@ export const routes: Routes = [
     },
     {
         path: 'home',
-        component: Home
+        component: Home,
+        canActivate: [authGuard]
     },
-
+    {
+        path: '',
+        redirectTo: 'sign-in',
+        pathMatch: 'full'
+    }
 ];

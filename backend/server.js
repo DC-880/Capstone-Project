@@ -58,8 +58,8 @@ app.post('/sign-in', async (req, res) => {
           secure: true,      
           sameSite: 'strict',  
           maxAge: 3600000       
-        });
-        res.status(200).json({ message: 'Login Successful'})
+    });
+        res.status(200).json({ message: 'Login Successful', token: token })
       } else {
         res.status(401).json("Login Failed");
       }
@@ -72,7 +72,7 @@ app.post('/sign-in', async (req, res) => {
   }
 })
 
-
+/////////////////AUTHENTICATION CHECK////////////////
 
 ////STEP 2, TOKEN AUTHENTICATION, PROTECT API ROUTES
 
@@ -80,37 +80,33 @@ function authenticateToken(req, res, next) {
 
   const token = req.cookies.token;
 
-  if (!token) return res.sendStatus(401); // No token
+  if (!token) return res.sendStatus(401);
 
   jwt.verify(token, SECRET_KEY, (err, user) => {
-    if (err) return res.sendStatus(403); // Invalid or expired token
+    if (err) return res.sendStatus(403); 
 
-    req.user = user; // Attach user info to request
-    next(); // Move to actual route handler
+    req.user = user;
+    next(); 
   });
 }
 
+app.get('/auth-status', authenticateToken, (req, res) => {
+  // If the authenticateToken middleware passes, it means the token is valid
+  // and the user is authenticated.
+  res.status(200).json({ isAuthenticated: true, username: req.user.username });
+});
 
-////STEP 3, RETRIEVE INFO BASED ON AUTHENTICATION, MODIFY LATER
+app.get('/logout', (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict'
+  });
+  res.status(200).json({ message: 'Logged out' });
+});
 
 
-// app.get('/users/:id', authenticateToken, async (req, res) => {
-//   const requestedId = req.params.id;
-//   const authenticatedUserId = req.user.users_id;
 
-//   // Optional: only allow user to access their own data
-//   if (parseInt(requestedId) !== authenticatedUserId) {
-//     return res.status(403).json({ message: 'Access denied' });
-//   }
-
-//   const [rows] = await connection.promise().query(
-//     'SELECT * FROM fsmay25.users WHERE users_id = ?',
-//     [requestedId]
-//   );
-
-//   if (rows.length > 0) res.json(rows[0]);
-//   else res.status(404).json({ message: 'User not found' });
-// });
 
 
 

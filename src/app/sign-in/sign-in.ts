@@ -32,11 +32,17 @@ submitSignIn() {
     const safeUsername = username ?? '';
     const safePassword = password ?? '';
     
-    this.authService.signIn(safeUsername, safePassword).subscribe({
-      next: () => {
-        console.log('Signed in Successfully');
-        // Optionally: navigate to dashboard or admin page
-        this.router.navigate(['/home']);
+    this.loginService.login({ username: safeUsername, password: safePassword }).subscribe({
+      next: (data) => {
+        console.log('Signed in Successfully', data);
+
+        // After successful login, check the authentication status.
+        this.authService.authStatus().subscribe(() => {
+          console.log('Authentication status checked successfully.');
+
+          // Navigate to the home page after successful authentication check.
+          this.router.navigate(['/home']);
+        });
       },
       error: (err) => {
         console.error('Login failed:', err);
@@ -46,6 +52,4 @@ submitSignIn() {
     console.log('signInForm invalid');
   }
 }
-  
-
-  }
+}
