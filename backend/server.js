@@ -96,7 +96,7 @@ app.get('/auth-status', authenticateToken, (req, res) => {
   res.status(200).json({ isAuthenticated: true, username: req.user.username });
 });
 
-app.get('/logout', (req, res) => {
+app.post('/logout', (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
     secure: true,
@@ -113,25 +113,34 @@ app.get('/logout', (req, res) => {
 
 //////////FOR ADDING CLIENTS/////////////////
 
-
-app.post('/clients/add', authenticateToken, (req, res) => {
+app.post('/clients/add', authenticateToken, async (req, res) => {
   const { name, age } = req.body;
 
   if (!name || !age) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
-  const sql = 'INSERT INTO capstone.clients (name, age) VALUES (?, ?)';
-  connection.query(sql, [name, age], (err, results) => {
-    if (err) {
-      console.error('Error inserting client:', err);
-      return res.status(500).json({ message: 'Database error' });
-    }
-
+  try {
+    const sql = 'INSERT INTO capstone.clients (name, service) VALUES (?, ?)';
+    const [results] = await connection.promise().query(sql, [name, age]);
     res.status(201).json({ message: 'Account created', clientId: results.insertId });
-  });
+  } catch (err) {
+    console.error('Error inserting client:', err);
+    res.status(500).json({ message: 'Database error' });
+  }
 });
 
+
+app.get('/dropdown-clients', authenticateToken, async (req, res) => {
+  try {
+    // Alias `client_id` as `id` to match the frontend's `Client` interface
+    const [clients] = await connection.promise().query('SELECT client_id AS id, name FROM capstone.clients');
+    res.status(200).json(clients);
+  } catch (error) {
+    console.error('Error fetching clients:', error);
+    res.status(500).json({ message: 'Database error' });
+  }
+});
 
 
 //////////FOR ADDING ADMIN/////////////////
@@ -153,6 +162,34 @@ app.post('/admin/add', async (req, res) => {
 
   } catch (error) {
     console.error('Insert error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
+
+///////////INVOICE SUBMISSION////////////
+
+
+app.post('/invoice/submit', authenticateToken, async (req, res) => {
+  const { client_id, amount, message, dueDate } = req.body;
+
+  // Basic validation
+  if (!client_id || amount == null || !dueDate) {
+    return res.status(400).json({ message: 'Client, amount, and due date are required.' });
+  }
+
+  try {
+    const sql = 'INSERT INTO capstone.invoices (client_id, amount, message, due_date) VALUES (?, ?, ?, ?)';
+    const [result] = await connection.promise().query(sql, [client_id, amount, message, dueDate]);
+
+    res.status(201).json({ message: 'Invoice created successfully', invoiceId: result.insertId });
+  } catch (error) {
+    console.error('Error submitting invoice:', error);
+    // Check for foreign key constraint failure
+    if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+        return res.status(404).json({ message: 'Client not found. Invalid client_id.' });
+    }
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });

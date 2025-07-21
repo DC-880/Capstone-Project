@@ -19,7 +19,10 @@ export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   return authService.authStatus().pipe(
-    map(() => true), // If the request succeeds (2xx status), the user is authenticated.
+    map(() => {
+      console.log('User authenticated: navigation allowed');
+      return true;
+    }), // If the request succeeds (2xx status), the user is authenticated.
     catchError(() => of(router.createUrlTree(['/sign-in']))) // If the request fails (401/403), redirect to sign-in.
   );
 };
