@@ -6,6 +6,8 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
+const { Resend } = require('resend');
+
 
 // console.log('env test:', process.env.HOST);
 
@@ -91,8 +93,6 @@ function authenticateToken(req, res, next) {
 }
 
 app.get('/auth-status', authenticateToken, (req, res) => {
-  // If the authenticateToken middleware passes, it means the token is valid
-  // and the user is authenticated.
   res.status(200).json({ isAuthenticated: true, username: req.user.username });
 });
 
@@ -170,11 +170,16 @@ app.post('/admin/add', async (req, res) => {
 
 ///////////INVOICE SUBMISSION////////////
 
+const emailSend = process.env.EMAIL_SEND_TEST;
+const emailReceive = process.env.EMAIL_RECEIVE_TEST;
+
+const resend = new Resend(process.env.RESEND_KEY);
+
 
 app.post('/invoice/submit', authenticateToken, async (req, res) => {
   const { client_id, amount, message, dueDate } = req.body;
 
-  // Basic validation
+
   if (!client_id || amount == null || !dueDate) {
     return res.status(400).json({ message: 'Client, amount, and due date are required.' });
   }
@@ -183,10 +188,29 @@ app.post('/invoice/submit', authenticateToken, async (req, res) => {
     const sql = 'INSERT INTO capstone.invoices (client_id, amount, message, due_date) VALUES (?, ?, ?, ?)';
     const [result] = await connection.promise().query(sql, [client_id, amount, message, dueDate]);
 
+    
+    try {
+      const { data, error } = await resend.emails.send({
+        from: `Christakos Law <${emailSend}>`,
+        to: [emailReceive],
+        subject: "TEST",
+        html: "This is a test message to confirm whether resend api is working",
+      });
+
+      if (error) {
+       
+        console.error('Resend email error:', error);
+      }
+    } catch (emailError) {
+      console.error('Exception while sending email:', emailError);
+    }
+
+ 
     res.status(201).json({ message: 'Invoice created successfully', invoiceId: result.insertId });
+
   } catch (error) {
     console.error('Error submitting invoice:', error);
-    // Check for foreign key constraint failure
+
     if (error.code === 'ER_NO_REFERENCED_ROW_2') {
         return res.status(404).json({ message: 'Client not found. Invalid client_id.' });
     }
