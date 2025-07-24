@@ -1,10 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { Client, InvoiceCreationService } from '../services/invoice-creation.service';
+import { trigger, transition, style, animate } from '@angular/animations';
+
+
 
 
 @Component({
@@ -12,14 +14,24 @@ import { Client, InvoiceCreationService } from '../services/invoice-creation.ser
   standalone: true,
   imports: [RouterLink, ReactiveFormsModule, CommonModule],
   templateUrl: './invoice-creation.html',
-  styleUrl: './invoice-creation.css'
+  styleUrl: './invoice-creation.css',
+  animations: [
+    trigger('fade', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(-20px)' }),
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+      ]),
+      transition(':leave', [
+        animate('300ms ease-in', style({ opacity: 0, transform: 'translateY(-20px)' }))
+      ])
+    ]),
+  ]
 })
 export class InvoiceCreation implements OnInit {
 
   invoiceService = inject(InvoiceCreationService);
 
   invoiceForm = new FormGroup({
-    // This control will now hold the client's ID, not their name.
     client_id: new FormControl('', Validators.required),
     amount: new FormControl('', Validators.required),
     message: new FormControl('', Validators.required),
@@ -28,20 +40,21 @@ export class InvoiceCreation implements OnInit {
 
   options$!: Observable<Client[]>;
 
+  successMessage: string | null = null;
+
+
   ngOnInit() {
-    // Fetch clients for the dropdown when the component initializes.
     this.options$ = this.invoiceService.getClients();
   }
 
   submitInvoice() {
     if (this.invoiceForm.valid) {
-      // The form value now directly matches the payload expected by the backend.
-      // The `client_id` form control holds the ID of the selected client.
       this.invoiceService.postInvoice(this.invoiceForm.value).subscribe({
         next: (response) => {
           console.log('Invoice posted successfully:', response);
-          // Optionally, reset the form or navigate away
+          this.successMessage = "Invoice posted successfully!";
           this.invoiceForm.reset();
+          setTimeout(() => this.successMessage = null, 5000);
         },
         error: (error) => {
           console.error('Error posting invoice:', error);

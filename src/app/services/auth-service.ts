@@ -17,8 +17,6 @@ export class AuthService {
   }
 
   logout() {
-    // With HttpOnly cookies, the browser manages the cookie, and JavaScript can't delete it.
-    // This request tells the server to clear the cookie.
     return this.http.post('http://localhost:3000/logout', {}, { withCredentials: true });
   }
 

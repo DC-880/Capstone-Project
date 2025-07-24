@@ -1,15 +1,40 @@
-  .circle-button {
+  h2 {
+    text-align: center;
+    margin-bottom: 50px;
+    color: blanchedalmond; 
+    margin-bottom: 3rem;  
+  }
+
+  .input-group-text {
+    width: 15%;
+  }
+
+  .bg-color1 {
+    background-color: blanchedalmond;
+    border-radius: 20px;
+    padding-top: 2rem; 
+    padding-bottom: 3rem;
+    width: 800px;
+}
+
+
+
+html,
+.body {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(7, 66, 7);
+    overflow: hidden;
+    
+}
+
+
+
+.circle-button {
     width: 50px;
     height: 50px;
     padding: 0;
     margin-top: 20px;
     margin-left: 20px;
-  }
-
-  h2 {
-    text-align: center;
-  }
-
-  .input-group-text {
-    width: 15%;
   }

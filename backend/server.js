@@ -114,30 +114,18 @@ app.post('/logout', (req, res) => {
 //////////FOR ADDING CLIENTS/////////////////
 
 app.post('/clients/add', authenticateToken, async (req, res) => {
-  const { name, age } = req.body;
+  const { name, email, phone_number, service } = req.body;
 
-  if (!name || !age) {
+  if (!name || !email || !phone_number || !service) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
   try {
-    const sql = 'INSERT INTO capstone.clients (name, service) VALUES (?, ?)';
-    const [results] = await connection.promise().query(sql, [name, age]);
-    res.status(201).json({ message: 'Account created', clientId: results.insertId });
+    const sql = 'INSERT INTO capstone.clients (name, email, phone_number, service) VALUES (?, ?, ?, ?)';
+    const [results] = await connection.promise().query(sql, [name, email, phone_number, service]);
+    res.status(201).json({ message: 'Client Added', clientId: results.insertId });
   } catch (err) {
     console.error('Error inserting client:', err);
-    res.status(500).json({ message: 'Database error' });
-  }
-});
-
-
-app.get('/dropdown-clients', authenticateToken, async (req, res) => {
-  try {
-    // Alias `client_id` as `id` to match the frontend's `Client` interface
-    const [clients] = await connection.promise().query('SELECT client_id AS id, name FROM capstone.clients');
-    res.status(200).json(clients);
-  } catch (error) {
-    console.error('Error fetching clients:', error);
     res.status(500).json({ message: 'Database error' });
   }
 });
@@ -215,5 +203,16 @@ app.post('/invoice/submit', authenticateToken, async (req, res) => {
         return res.status(404).json({ message: 'Client not found. Invalid client_id.' });
     }
     res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+app.get('/dropdown-clients', authenticateToken, async (req, res) => {
+  try {
+    // Alias `client_id` as `id` to match the frontend's `Client` interface
+    const [clients] = await connection.promise().query('SELECT client_id AS id, name FROM capstone.clients');
+    res.status(200).json(clients);
+  } catch (error) {
+    console.error('Error fetching clients:', error);
+    res.status(500).json({ message: 'Database error' });
   }
 });

@@ -11,15 +11,14 @@ export interface Client {
   providedIn: 'root'
 })
 export class InvoiceCreationService {
-  private apiUrl = 'http://localhost:3000';
 
   constructor(private http: HttpClient) { }
 
   getClients(): Observable<Client[]> {
-    return this.http.get<Client[]>(`${this.apiUrl}/dropdown-clients`, { withCredentials: true });
+    return this.http.get<Client[]>('http://localhost:3000/dropdown-clients', { withCredentials: true });
   }
 
   postInvoice(data: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/invoice/submit`, data, { withCredentials: true });
+    return this.http.post<any>('http://localhost:3000/invoice/submit', data, { withCredentials: true });
   }
 }

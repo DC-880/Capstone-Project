@@ -1,1 +1,58 @@
-<p>client-management works!</p>
+<div class="body">
+
+
+ <button type="button" class="btn btn-primary rounded-circle circle-button" [routerLink]="['/home']">
+    <i class="fa-solid fa-arrow-left"></i>
+</button>   
+
+
+
+
+<h2>Add a Client</h2>
+
+<!-- <div class="bg-color1"> -->
+
+
+<form [formGroup]="clientForm" class="bg-color1 mx-auto mt-2 mb-2" (ngSubmit)="submitClient()">
+
+
+    <div class="input-group mt-3 w-75 mx-auto">
+        <span class="input-group-text">Name</span>
+        <input type="text" class="form-control" id="name" formControlName="name" placeholder="Type Client's Name Here">
+    </div>
+
+    <div class="input-group mt-3 w-75 mx-auto">
+        <span class="input-group-text">Email</span>
+        <input type="email" class="form-control" id="email" formControlName="email"
+            placeholder="Type Client's Email Address Here">
+    </div>
+
+    <div class="input-group mt-3 w-75 mx-auto">
+        <span class="input-group-text">Phone #</span>
+        <select class="form-select" style="max-width: 180px;" formControlName="country_code" id="country_code">
+            <option *ngFor="let country of countries" [value]="country.code">
+                {{ country.name }} (+{{ country.callingCode }})
+            </option>
+        </select>
+        <input type="tel" class="form-control" id="phone_number" formControlName="phone_number" placeholder="Phone Number">
+    </div>
+
+    <div class="input-group mt-3 w-75 mx-auto">
+        <span class="input-group-text">Service</span>
+        <input type="text" class="form-control" id="service" formControlName="service"
+            placeholder="Input Details of Service Here">
+    </div>
+
+    <div class="mt-3 mx-auto w-75">
+        <button type="submit" class="btn btn-primary w-100" [disabled]="!clientForm.valid">Submit</button>
+    </div>
+
+    <div class="alert alert-secondary w-75 mx-auto" [@fade] *ngIf="successMessage" role="alert">
+        {{ successMessage }}
+    </div>
+
+
+</form>
+
+<!-- </div> -->
+</div>

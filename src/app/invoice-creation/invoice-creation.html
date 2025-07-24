@@ -1,3 +1,5 @@
+<div class="body">
+
 <button type="button" class="btn btn-primary rounded-circle circle-button" [routerLink]="['/home']">
     <i class="fa-solid fa-arrow-left"></i>
 </button>
@@ -5,8 +7,8 @@
 <h2>Create Your Invoice</h2>
 
 
-<form [formGroup]="invoiceForm" class="p-5" (ngSubmit)="submitInvoice()">
-    <div class="input-group mt-3 w-50 mx-auto">
+<form [formGroup]="invoiceForm" class="bg-color1 mx-auto mt-2 mb-2" (ngSubmit)="submitInvoice()">
+    <div class="input-group mt-3 w-75 mx-auto">
         <span class="input-group-text">Client</span>
         <select class="form-select" formControlName="client_id">
             <option value="" disabled>Select a client</option>
@@ -15,22 +17,32 @@
 
     </div>
 
-    <div class="input-group mt-3 w-50 mx-auto">
+    <div class="input-group mt-3 w-75 mx-auto">
         <span class="input-group-text">Amount</span>
         <input type="number" class="form-control" id="amount" formControlName="amount" placeholder="Type Amount Here">
     </div>
 
-    <div class="input-group mt-3 w-50 mx-auto">
+    <div class="input-group mt-3 w-75 mx-auto">
         <span class="input-group-text">Message</span>
         <input type="text" class="form-control" id="message" formControlName="message" placeholder="Type Message Here">
     </div>
 
-        <div class="input-group mt-3 w-50 mx-auto">
+        <div class="input-group mt-3 w-75 mx-auto">
         <span class="input-group-text">Due Date</span>
         <input type="date" class="form-control" id="date" formControlName="dueDate">
     </div>
 
-    <div class="mt-3 mx-auto w-50">
+    <div class="mt-3 mx-auto w-75">
         <button type="submit" class="btn btn-primary w-100" [disabled]="!invoiceForm.valid">Submit</button>
     </div>
+
+<div class="alert alert-success w-75 mx-auto mt-5" [@fade] *ngIf="successMessage" role="alert">
+{{ successMessage}}
+</div>
+
 </form>
+
+</div>
+
+
+

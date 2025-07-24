@@ -10,6 +10,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/animations": "^20.0.5",
     "@angular/common": "^20.0.0",
     "@angular/compiler": "^20.0.0",
     "@angular/core": "^20.0.0",
@@ -22,7 +23,9 @@
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "libphonenumber-js": "^1.12.10",
     "mysql2": "^3.14.1",
+    "resend": "^4.7.0",
     "rxjs": "~7.8.0",
     "sequelize": "^6.37.7",
     "tslib": "^2.3.0",
