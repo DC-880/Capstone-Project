@@ -7,22 +7,41 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const { Resend } = require('resend');
+const Bree = require('bree');
+const path = require('path');
+
 
 
 // console.log('env test:', process.env.HOST);
 
 app.use(express.json());
-
 app.use(cookieParser());
 app.use(cors({
-  origin: 'http://localhost:4200',   // Your Angular frontend
-  credentials: true                  // 🔐 Allow cookies
+  origin: 'http://localhost:4200', 
+  credentials: true              
 }));
+
+const bree = new Bree({
+  root: path.join(__dirname, 'jobs'),
+  jobs: [
+    {
+      name: 'recurring-invoice',
+      // This cron schedule runs the job every day at midnight.
+      // This is more appropriate for checking for due invoices daily.
+      cron: '0 0 * * *'
+    }
+  ]
+});
+
+bree.start();
 
 
 app.listen(3000, () => {
   console.log('Server listening on port 3000');
 });
+
+
+
 
 
 
@@ -45,9 +64,6 @@ app.post('/sign-in', async (req, res) => {
   if (!username || !password) {
     return res.status(401).json('Please Provide Username and Password');
   }
-
-
-
   try {
     const [data] = await connection.promise().query(`SELECT username, password FROM capstone.admin WHERE username = ?`, [username]);
     ;
@@ -208,11 +224,25 @@ app.post('/invoice/submit', authenticateToken, async (req, res) => {
 
 app.get('/dropdown-clients', authenticateToken, async (req, res) => {
   try {
-    // Alias `client_id` as `id` to match the frontend's `Client` interface
     const [clients] = await connection.promise().query('SELECT client_id AS id, name FROM capstone.clients');
     res.status(200).json(clients);
   } catch (error) {
     console.error('Error fetching clients:', error);
+    res.status(500).json({ message: 'Database error' });
+  }
+});
+
+
+
+///////////FOR TRACKING TABLE//////////////
+
+
+app.get('/tracking', authenticateToken, async (req, res) => {
+    try {
+    const [clients] = await connection.promise().query('SELECT * FROM capstone.invoices');
+    res.status(200).json(clients);
+  } catch (error) {
+    console.error('Error fetching invoices:', error);
     res.status(500).json({ message: 'Database error' });
   }
 });

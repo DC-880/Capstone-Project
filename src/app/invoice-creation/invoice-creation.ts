@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { Client, InvoiceCreationService } from '../services/invoice-creation.service';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { Navbar } from '../navbar/navbar';
 
 
 
@@ -12,7 +13,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 @Component({
   selector: 'app-invoice-creation',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CommonModule],
+  imports: [RouterLink, ReactiveFormsModule, CommonModule, Navbar],
   templateUrl: './invoice-creation.html',
   styleUrl: './invoice-creation.css',
   animations: [
@@ -35,7 +36,8 @@ export class InvoiceCreation implements OnInit {
     client_id: new FormControl('', Validators.required),
     amount: new FormControl('', Validators.required),
     message: new FormControl('', Validators.required),
-    dueDate: new FormControl('', Validators.required)
+    dueDate: new FormControl('', Validators.required),
+    is_recurring: new FormControl(false)
   });
 
   options$!: Observable<Client[]>;

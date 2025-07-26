@@ -5,11 +5,14 @@ import { CommonModule } from '@angular/common';
 import { ClientManagementService } from '../services/client-management-service';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { getCountries, getCountryCallingCode, parsePhoneNumberFromString, CountryCode } from 'libphonenumber-js';
+import { Navbar } from '../navbar/navbar';
+
+
 
 @Component({
   selector: 'app-client-management',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CommonModule],
+  imports: [RouterLink, ReactiveFormsModule, CommonModule, Navbar],
   templateUrl: './client-management.html',
   styleUrl: './client-management.css',
   animations: [
