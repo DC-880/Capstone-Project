@@ -5,6 +5,7 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
 
 @Component({
   selector: 'app-home',
+  standalone: true,
   imports: [Navbar, RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.css',

@@ -7,8 +7,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const { Resend } = require('resend');
-const Bree = require('bree');
-const path = require('path');
+const cron = require('node-cron');
 
 
 
@@ -21,20 +20,32 @@ app.use(cors({
   credentials: true              
 }));
 
-const bree = new Bree({
-  root: path.join(__dirname, 'jobs'),
-  jobs: [
-    {
-      name: 'recurring-invoice',
-      // This cron schedule runs the job every day at midnight.
-      // This is more appropriate for checking for due invoices daily.
-      cron: '0 0 * * *'
-    }
-  ]
+
+cron.schedule('0 0 1 * *', async () => {
+  console.log('Running recurring invoice task...');
+
+
+  const [invoices] = await connection.execute(
+    `SELECT * FROM invoices WHERE is_recurring = TRUE`
+  );
+
+  for (const invoice of invoices) {
+    await connection.execute(`
+      INSERT INTO invoices (client_id, amount, message, due_date, is_recurring)
+      VALUES (?, ?, ?, ?) `, [
+          invoice.client_id,
+          invoice.amount,
+          invoice.message,
+          invoice.due_date,
+          invoice.is_recurring,
+        ]
+    );
+
+    console.log(`Generated recurring invoice from invoice ${invoice.id}`);
+  }
+
+  await connection.end();
 });
-
-bree.start();
-
 
 app.listen(3000, () => {
   console.log('Server listening on port 3000');
@@ -181,7 +192,7 @@ const resend = new Resend(process.env.RESEND_KEY);
 
 
 app.post('/invoice/submit', authenticateToken, async (req, res) => {
-  const { client_id, amount, message, dueDate } = req.body;
+  const { client_id, amount, message, dueDate, is_recurring } = req.body;
 
 
   if (!client_id || amount == null || !dueDate) {
@@ -189,25 +200,25 @@ app.post('/invoice/submit', authenticateToken, async (req, res) => {
   }
 
   try {
-    const sql = 'INSERT INTO capstone.invoices (client_id, amount, message, due_date) VALUES (?, ?, ?, ?)';
-    const [result] = await connection.promise().query(sql, [client_id, amount, message, dueDate]);
+    const sql = 'INSERT INTO capstone.invoices (client_id, amount, message, due_date, is_recurring) VALUES (?, ?, ?, ?, ?)';
+    const [result] = await connection.promise().query(sql, [client_id, amount, message, dueDate, is_recurring]);
 
     
-    try {
-      const { data, error } = await resend.emails.send({
-        from: `Christakos Law <${emailSend}>`,
-        to: [emailReceive],
-        subject: "TEST",
-        html: "This is a test message to confirm whether resend api is working",
-      });
+    // try {
+    //   const { data, error } = await resend.emails.send({
+    //     from: `Christakos Law <${emailSend}>`,
+    //     to: [emailReceive],
+    //     subject: "TEST",
+    //     html: "This is a test message to confirm whether resend api is working",
+    //   });
 
-      if (error) {
+    //   if (error) {
        
-        console.error('Resend email error:', error);
-      }
-    } catch (emailError) {
-      console.error('Exception while sending email:', emailError);
-    }
+    //     console.error('Resend email error:', error);
+    //   }
+    // } catch (emailError) {
+    //   console.error('Exception while sending email:', emailError);
+    // }
 
  
     res.status(201).json({ message: 'Invoice created successfully', invoiceId: result.insertId });

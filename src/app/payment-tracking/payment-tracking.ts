@@ -28,6 +28,7 @@ export interface DisplayInvoice {
 
 @Component({
   selector: 'app-payment-tracking',
+  standalone: true,
   imports: [RouterLink, Navbar, CommonModule],
   templateUrl: './payment-tracking.html',
   styleUrl: './payment-tracking.css',

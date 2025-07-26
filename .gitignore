@@ -43,3 +43,4 @@ Thumbs.db
 
 .env
 systemgen.canvas
+test-recurring-invoice.js
