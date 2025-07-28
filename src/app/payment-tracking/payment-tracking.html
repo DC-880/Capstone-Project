@@ -23,6 +23,7 @@
                             <th scope="col">Amount</th>
                             <th scope="col">Due Date</th>
                             <th scope="col">Status</th>
+                            <th scope="col">Received</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -37,6 +38,14 @@
                                     'bg-warning text-dark': invoice.status === 'Unpaid',
                                     'bg-danger': invoice.status === 'Overdue'
                                 }">{{ invoice.status }}</span>
+                            </td>
+                            <td>
+                                <span (click)="markReceived(invoice.id)" class="badge" [ngClass]="{
+                                    'bg-success': invoice.received == 1,
+                                    'bg-danger': invoice.received != 1
+                                }">
+                                  {{ invoice.received == 1 ? 'Yes' : 'No' }}
+                                </span>
                             </td>
                         </tr>
                     </tbody>

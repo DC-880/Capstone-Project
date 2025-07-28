@@ -11,6 +11,9 @@ export class PaymentTrackingService {
 
   getInvoices() {
     return this.http.get('http://localhost:3000/tracking', { withCredentials: true });
-  
+  }
+
+  markReceived(invoiceId: number) {
+    return this.http.patch(`http://localhost:3000/tracking/${invoiceId}`, {}, { withCredentials: true, responseType: 'text'});
   }
 }

@@ -15,6 +15,7 @@ export interface Invoice {
   due_date: string;
   status: 'Paid' | 'Unpaid' | 'Overdue';
   created_on: Date;
+  received: number;
 }
 
 export interface DisplayInvoice {
@@ -24,6 +25,7 @@ export interface DisplayInvoice {
   due_date: string;
   status: 'Paid' | 'Unpaid' | 'Overdue';
   created_on: Date;
+  received: number;
 }
 
 @Component({
@@ -51,14 +53,14 @@ export class PaymentTracking implements OnInit {
 
   displayInvoices$!: Observable<DisplayInvoice[]>;
 
-  ngOnInit() {
+  private loadInvoices() {
     const invoices$ = this.trackingService.getInvoices() as Observable<Invoice[]>;
     const clients$ = this.invoiceService.getClients();
 
     this.displayInvoices$ = combineLatest([invoices$, clients$]).pipe(
       map(([invoices, clients]) => {
         const clientMap = new Map(clients.map(client => [client.id, client.name]));
-        return invoices.map(invoice => ({
+        return invoices.map((invoice: Invoice) => ({
           ...invoice,
           client_name: clientMap.get(invoice.client_id) ?? 'Unknown Client'
         }));
@@ -66,4 +68,20 @@ export class PaymentTracking implements OnInit {
     );
   }
 
-}
+  ngOnInit() {
+    this.loadInvoices();
+  }
+
+  markReceived(invoiceId: number) {
+    this.trackingService.markReceived(invoiceId).subscribe({
+        next: () => {
+          console.log(`Invoice ${invoiceId} marked as received successfully.`);
+          this.loadInvoices();
+        },
+        error: (error: any) => {
+          console.error(`Error marking invoice ${invoiceId} as received:`, error);
+        }
+      });
+    }
+  }
+  

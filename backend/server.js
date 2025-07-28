@@ -16,12 +16,16 @@ const cron = require('node-cron');
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: 'http://localhost:4200', 
-  credentials: true              
+  origin: 'http://localhost:4200',
+  credentials: true
 }));
 
 
-cron.schedule('0 0 1 * *', async () => {
+
+
+//////////////GENERATE NEW INVOICE AUTOMATICALLY/////////////////
+
+cron.schedule('0 12 1 * *', async () => {
   console.log('Running recurring invoice task...');
 
 
@@ -33,18 +37,60 @@ cron.schedule('0 0 1 * *', async () => {
     await connection.execute(`
       INSERT INTO invoices (client_id, amount, message, due_date, is_recurring)
       VALUES (?, ?, ?, ?) `, [
-          invoice.client_id,
-          invoice.amount,
-          invoice.message,
-          invoice.due_date,
-          invoice.is_recurring,
-        ]
+      invoice.client_id,
+      invoice.amount,
+      invoice.message,
+      invoice.due_date,
+      invoice.is_recurring,
+    ]
     );
 
     console.log(`Generated recurring invoice from invoice ${invoice.id}`);
   }
 
-  await connection.end();
+});
+
+
+///////////AUTOMATIC REMINDER EMAIL//////////////
+
+cron.schedule('0 12 20 * *', async () => {
+  console.log('Running reminder email job...');
+
+  try {
+
+    const [rows] = await connection.query(`
+  SELECT 
+    invoices.id, 
+    invoices.amount, 
+    clients.email AS client_email
+  FROM 
+    invoices
+  INNER JOIN 
+    clients ON invoices.client_id = clients.client_id
+  WHERE 
+    invoices.received = 0
+`);
+
+    for (const invoice of rows) {
+      const { amount, client_email } = invoice;
+
+      await resend.emails.send({
+        from: `Christakos Law <${emailSend}>`,
+        to: client_email,
+        subject: 'Retainer Installment Reminder',
+        html: `Hello,<br><br>This is a reminder that Christakos Law is requesting the retainer installment for this month.<br><br>
+               <strong>Amount:</strong> $${amount} <br>
+               <strong>Due By:</strong> End of the current month <br>
+               <strong>Send via Interac E-Transfer To:</strong> ${emailSend} <br><br>
+               Thank you!<br>Christakos Law`,
+      });
+
+      console.log(`Reminder sent to ${client_email}`);
+    }
+
+  } catch (error) {
+    console.error('Error sending reminder emails:', error);
+  }
 });
 
 app.listen(3000, () => {
@@ -59,17 +105,10 @@ app.listen(3000, () => {
 
 //////////////FOR SIGNING IN//////////////////////////
 
-////STEP 1, CHECK USERNAME AND PASSWORD
-
-
-
 const SECRET_KEY = process.env.SECRET_KEY;
 
-
-
-
 app.post('/sign-in', async (req, res) => {
- 
+
   let { username, password } = req.body;
 
   if (!username || !password) {
@@ -83,11 +122,11 @@ app.post('/sign-in', async (req, res) => {
       if (passResult) {
         const token = await jwt.sign({ id: data[0].id }, SECRET_KEY, { expiresIn: '1hr' });
         res.cookie('token', token, {
-          httpOnly: true,      
-          secure: true,      
-          sameSite: 'strict',  
-          maxAge: 3600000       
-    });
+          httpOnly: true,
+          secure: true,
+          sameSite: 'strict',
+          maxAge: 3600000
+        });
         res.status(200).json({ message: 'Login Successful', token: token })
       } else {
         res.status(401).json("Login Failed");
@@ -101,9 +140,11 @@ app.post('/sign-in', async (req, res) => {
   }
 })
 
-/////////////////AUTHENTICATION CHECK////////////////
 
-////STEP 2, TOKEN AUTHENTICATION, PROTECT API ROUTES
+
+
+
+/////////////////AUTHENTICATION CHECK////////////////
 
 function authenticateToken(req, res, next) {
 
@@ -112,10 +153,10 @@ function authenticateToken(req, res, next) {
   if (!token) return res.sendStatus(401);
 
   jwt.verify(token, SECRET_KEY, (err, user) => {
-    if (err) return res.sendStatus(403); 
+    if (err) return res.sendStatus(403);
 
     req.user = user;
-    next(); 
+    next();
   });
 }
 
@@ -158,8 +199,10 @@ app.post('/clients/add', authenticateToken, async (req, res) => {
 });
 
 
-//////////FOR ADDING ADMIN/////////////////
 
+
+
+//////////FOR ADDING ADMIN/////////////////
 
 app.post('/admin/add', async (req, res) => {
   const { username, password } = req.body;
@@ -183,10 +226,12 @@ app.post('/admin/add', async (req, res) => {
 
 
 
-///////////INVOICE SUBMISSION////////////
+///////////INVOICE SUBMISSION + ACCOMPANYING EMAIL////////////
 
-const emailSend = process.env.EMAIL_SEND_TEST;
-const emailReceive = process.env.EMAIL_RECEIVE_TEST;
+const emailSend = process.env.EMAIL_SEND;
+const emailReceive = process.env.EMAIL_RECEIVE;
+const emailTransfer =  process.env.EMAIL_TRANSFER;
+
 
 const resend = new Resend(process.env.RESEND_KEY);
 
@@ -203,31 +248,33 @@ app.post('/invoice/submit', authenticateToken, async (req, res) => {
     const sql = 'INSERT INTO capstone.invoices (client_id, amount, message, due_date, is_recurring) VALUES (?, ?, ?, ?, ?)';
     const [result] = await connection.promise().query(sql, [client_id, amount, message, dueDate, is_recurring]);
 
-    
-    // try {
-    //   const { data, error } = await resend.emails.send({
-    //     from: `Christakos Law <${emailSend}>`,
-    //     to: [emailReceive],
-    //     subject: "TEST",
-    //     html: "This is a test message to confirm whether resend api is working",
-    //   });
 
-    //   if (error) {
-       
-    //     console.error('Resend email error:', error);
-    //   }
-    // } catch (emailError) {
-    //   console.error('Exception while sending email:', emailError);
-    // }
+    try {
+      const { data, error } = await resend.emails.send({
+        from: `Christakos Law <${emailSend}>`,
+        to: [emailReceive],
+        subject: "Monthly Retainer Notification",
+        html: `Hello,<br><br> Christakos Law is requesting the retainer installment for this month. 
+        The details can be found below: <br><br> Amount: ${amount} <br> Due By: The end of the current month <br> 
+        Send via Interac E-Transfer To: ${emailTransfer} <br><br> Thank you! <br> Christakos Law`,
+      });
 
- 
+      if (error) {
+
+        console.error('Resend email error:', error);
+      }
+    } catch (emailError) {
+      console.error('Exception while sending email:', emailError);
+    }
+
+
     res.status(201).json({ message: 'Invoice created successfully', invoiceId: result.insertId });
 
   } catch (error) {
     console.error('Error submitting invoice:', error);
 
     if (error.code === 'ER_NO_REFERENCED_ROW_2') {
-        return res.status(404).json({ message: 'Client not found. Invalid client_id.' });
+      return res.status(404).json({ message: 'Client not found. Invalid client_id.' });
     }
     res.status(500).json({ message: 'Internal Server Error' });
   }
@@ -247,13 +294,24 @@ app.get('/dropdown-clients', authenticateToken, async (req, res) => {
 
 ///////////FOR TRACKING TABLE//////////////
 
-
 app.get('/tracking', authenticateToken, async (req, res) => {
-    try {
+  try {
     const [clients] = await connection.promise().query('SELECT * FROM capstone.invoices');
     res.status(200).json(clients);
   } catch (error) {
     console.error('Error fetching invoices:', error);
     res.status(500).json({ message: 'Database error' });
   }
+});
+
+
+app.patch('/tracking/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await connection.promise().query('UPDATE invoices SET received = 1 WHERE id = ?', [id]);
+    res.sendStatus(200);
+  } catch (error) {
+    console.log('Unable to update:', error)
+  }
+
 });

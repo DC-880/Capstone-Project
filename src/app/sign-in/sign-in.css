@@ -26,3 +26,7 @@ body {
     color: blanchedalmond; /* 3. Make title visible on the dark background */
     margin-bottom: 3rem;   /* 4. Add space between the title and the container */
 }
+
+.input-group-text {
+    width: 27%;
+  }
