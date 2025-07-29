@@ -99,10 +99,6 @@ app.listen(3000, () => {
 
 
 
-
-
-
-
 //////////////FOR SIGNING IN//////////////////////////
 
 const SECRET_KEY = process.env.SECRET_KEY;
@@ -306,12 +302,30 @@ app.get('/tracking', authenticateToken, async (req, res) => {
 
 
 app.patch('/tracking/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  
   try {
-    const { id } = req.params;
     await connection.promise().query('UPDATE invoices SET received = 1 WHERE id = ?', [id]);
     res.sendStatus(200);
   } catch (error) {
     console.log('Unable to update:', error)
   }
 
+});
+
+
+app.patch('/update-status/:id', async (req, res) => {
+  const { id }  = req.params;
+  const { status } = req.body;
+
+  try {
+    await db.execute(
+      'UPDATE invoices SET status = ? WHERE id = ?',
+      [status, id]
+    );
+    res.status(200).json({ message: 'Status updated' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Update failed' });
+  }
 });

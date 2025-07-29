@@ -16,4 +16,9 @@ export class PaymentTrackingService {
   markReceived(invoiceId: number) {
     return this.http.patch(`http://localhost:3000/tracking/${invoiceId}`, {}, { withCredentials: true, responseType: 'text'});
   }
+
+  verifySent(invoiceId: number) {
+    return this.http.post(`http://localhost:3000/update-status/${invoiceId}`, { status: 'Paid' });
+}
+
 }
