@@ -34,7 +34,7 @@ export interface DisplayInvoice {
   imports: [RouterLink, Navbar, CommonModule],
   templateUrl: './payment-tracking.html',
   styleUrl: './payment-tracking.css',
-animations: [
+  animations: [
   trigger('fade', [
     transition(':enter', [
       style({ opacity: 0, transform: 'translateY(10px)' }),

@@ -20,11 +20,5 @@ export class AuthService {
     return this.http.post('http://localhost:3000/logout', {}, { withCredentials: true });
   }
 
-  // test() {
-  //   const headers = {'Authorization': `${this.getToken()}`};
-  //   return this.http.post<{ token: string }>('http://localhost:3000/sign-in', { headers }, { withCredentials : true})
-
-  // }
-
 }
 

@@ -252,9 +252,14 @@ app.post('/invoice/submit', authenticateToken, async (req, res) => {
         subject: "Monthly Retainer Notification",
         html: `Hello,<br><br> Christakos Law is requesting the retainer installment for this month. 
         The details can be found below: <br><br> Amount: ${amount} <br> Due By: The end of the current month <br> 
-        Send via Interac E-Transfer To: ${emailTransfer} <br><br> Thank you! <br> Christakos Law`,
+        Send via Interac E-Transfer To: ${emailTransfer} <br><br>
+        Once the payment is complete, please follow this link to confirm: <a href="http://localhost:4200/verify/${result.insertId}">Confirm</a> <br><br>
+        Thank you! <br> Christakos Law`,
       });
 
+      if (data) {
+        console.log('Email sent successfully:', data);
+      }
       if (error) {
 
         console.error('Resend email error:', error);
@@ -275,6 +280,10 @@ app.post('/invoice/submit', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
+
+
+
+////////////////CLIENT DROPDOWN////////////////////////
 
 app.get('/dropdown-clients', authenticateToken, async (req, res) => {
   try {
@@ -301,6 +310,9 @@ app.get('/tracking', authenticateToken, async (req, res) => {
 });
 
 
+/////////////UPDATING RECEIVED COLUMN/////////
+
+
 app.patch('/tracking/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   
@@ -314,15 +326,16 @@ app.patch('/tracking/:id', authenticateToken, async (req, res) => {
 });
 
 
+////////////////UPDATING STATUS COLUMN///////////////
+
+
 app.patch('/update-status/:id', async (req, res) => {
   const { id }  = req.params;
   const { status } = req.body;
 
   try {
-    await db.execute(
-      'UPDATE invoices SET status = ? WHERE id = ?',
-      [status, id]
-    );
+    await connection.promise().query('UPDATE invoices SET status = ? WHERE id = ?', [status, id]);
+    
     res.status(200).json({ message: 'Status updated' });
   } catch (error) {
     console.error(error);

@@ -18,7 +18,7 @@ export class PaymentTrackingService {
   }
 
   verifySent(invoiceId: number) {
-    return this.http.post(`http://localhost:3000/update-status/${invoiceId}`, { status: 'Paid' });
+    return this.http.patch(`http://localhost:3000/update-status/${invoiceId}`, { status: 'Paid' });
 }
 
 }

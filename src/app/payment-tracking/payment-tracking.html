@@ -13,7 +13,7 @@
 
 
     <ng-container *ngIf="displayInvoices$ | async as invoices">
-        <div class="container mt-4 bg-color1" @fade *ngIf="invoices.length > 0; else loading">
+        <div class="container mt-4 bg-color1" @fade>
             <div *ngIf="invoices.length > 0; else noInvoices">
                 <table class="table table-striped table-hover">
                     <thead class="thead-dark">
@@ -40,12 +40,12 @@
                                 }">{{ invoice.status }}</span>
                             </td>
                             <td>
-                                <span (click)="markReceived(invoice.id)" class="badge" [ngClass]="{
+                                <button (click)="markReceived(invoice.id)" class="badge" [ngClass]="{
                                     'bg-success': invoice.received == 1,
                                     'bg-danger': invoice.received != 1
                                 }">
                                   {{ invoice.received == 1 ? 'Yes' : 'No' }}
-                                </span>
+                            </button>
                             </td>
                         </tr>
                     </tbody>
@@ -57,13 +57,6 @@
                 </div>
             </ng-template>
         </div>
-        <ng-template #loading>
-            <div class="d-flex justify-content-center">
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>
-        </ng-template>
     </ng-container>
 
 
