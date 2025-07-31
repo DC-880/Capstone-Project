@@ -7,6 +7,14 @@ export interface Client {
   name: string;
 }
 
+export interface ClientData {
+  name: string;
+  email: string;
+  phone_number: string;
+  service: string;
+  country_code: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })

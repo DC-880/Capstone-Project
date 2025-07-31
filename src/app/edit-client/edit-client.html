@@ -16,7 +16,7 @@
 
         <div class="input-group mt-3 w-75 mx-auto">
             <span class="input-group-text">Name</span>
-            <input type="text" class="form-control" id="name" formControlName="name"
+            <input type="text" class="form-control" id="name" formControlName="name" 
                 placeholder="Type Client's Name Here">
         </div>
 
@@ -47,8 +47,8 @@
             <button type="submit" class="btn btn-primary w-100" [disabled]="!clientEditForm.valid">Submit</button>
         </div>
 
-        <div class="alert alert-secondary w-75 mx-auto" [@fade] *ngIf="successMessage" role="alert">
-            {{ successMessage }}
+        <div class="alert alert-secondary w-75 mx-auto"  *ngIf="successMessage" role="alert">
+           Client Updated!
         </div>
 
 

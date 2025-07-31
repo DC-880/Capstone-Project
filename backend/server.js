@@ -203,7 +203,7 @@ app.get('/clients/:id', authenticateToken, async (req, res) => {
 
     try {
     const [clients] = await connection.promise().query('SELECT * FROM capstone.clients WHERE client_id = ?', [clientId]);
-    res.status(200).json(clients);
+    res.status(200).json(clients[0]);
   } catch (error) {
     console.error('Error fetching clients:', error);
     res.status(500).json({ message: 'Database error' });
@@ -213,7 +213,7 @@ app.get('/clients/:id', authenticateToken, async (req, res) => {
 
 
 
-app.put('/clients/:id', authenticateToken, async (req, res) => {
+app.put('/clients/edit/:id', authenticateToken, async (req, res) => {
   const clientId = req.params.id;
   const { name, email, phone_number, service } = req.body;
 

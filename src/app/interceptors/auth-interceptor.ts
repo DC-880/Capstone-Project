@@ -20,10 +20,6 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
         console.warn('Unauthorized: Redirecting to sign in');
         router.navigate(['/sign-in']);
       }
-
-      if (error.status === 403) {
-        console.warn('Forbidden: Access denied.');
-      }
       return throwError(() => error);
     })
   );
