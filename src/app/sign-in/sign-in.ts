@@ -25,7 +25,12 @@ export class SignIn {
     password: new FormControl('', Validators.required)
   })
 
+  submitted = false;
+
+
 submitSignIn() {
+
+  this.submitted = true;
   
   if (this.signInForm.valid) {
     const { username, password } = this.signInForm.value;
@@ -36,11 +41,9 @@ submitSignIn() {
       next: (data) => {
         console.log('Signed in Successfully', data);
 
-        // After successful login, check the authentication status.
         this.authService.authStatus().subscribe(() => {
           console.log('Authentication status checked successfully.');
 
-          // Navigate to the home page after successful authentication check.
           this.router.navigate(['/home']);
         });
       },

@@ -17,7 +17,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
   return next(cloned).pipe(
     catchError((error) => {
       if (error.status === 401) {
-        console.warn('Unauthorized: Redirecting to login or showing message.');
+        console.warn('Unauthorized: Redirecting to sign in');
         router.navigate(['/sign-in']);
       }
 

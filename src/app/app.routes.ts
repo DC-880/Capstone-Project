@@ -6,6 +6,7 @@ import { PaymentTracking } from './payment-tracking/payment-tracking';
 import { ClientManagement } from './client-management/client-management';
 import { InvoiceCreation } from './invoice-creation/invoice-creation';
 import { Verify } from './verify/verify';
+import { EditClient } from './edit-client/edit-client';
 
 
 export const routes: Routes = [
@@ -42,5 +43,10 @@ export const routes: Routes = [
     {
         path: 'verify/:id',
         component: Verify,
+    },
+    {
+        path: 'edit/:id',
+        component: EditClient,
+        canActivate: [authGuard]
     }
 ];

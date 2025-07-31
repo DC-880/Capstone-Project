@@ -2,7 +2,7 @@
     
     <body>
 
- <h1 class="title">Christakos Law Admin Portal</h1>
+ <h1 class="title">Christakos Law Admin Services</h1>
 
     <div>
 
@@ -19,10 +19,13 @@
                 <span class="input-group-text">Username</span>
                 <input type="text" name="username" id="username" class="form-control" formControlName="username"
                     placeholder="Type Username Here" />
-                @if(signInForm.get('username')?.errors?.['required'] && signInForm.get('username')?.touched) {
+
+            </div>  
+            
+            <div class="input-group mb-3 mt-3 w-75 mx-auto">
+                @if(signInForm.get('username')?.errors?.['required'] && signInForm.get('username')?.touched && submitted) {
                     <span>Please enter a username</span>
                 }
-
             </div>
 
             <div class="input-group mb-3 mt-3 w-75 mx-auto">
@@ -30,12 +33,12 @@
                 <input type="password" name="password" id="password" class="form-control" formControlName="password"
                     placeholder="Type Password Here" />
 
-                     @if(signInForm.get('password')?.errors?.['required'] && signInForm.get('password')?.touched) {
+            </div>                     
+            
+            <div class="input-group mb-3 mt-3 w-75 mx-auto">
+            @if(signInForm.get('password')?.errors?.['required'] && signInForm.get('password')?.touched && submitted) {
                     <span>Please enter a password</span>
                 }
-
-                
-
             </div>
 
             <div class="text-center mt-3 mb-3">
